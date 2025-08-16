@@ -6,6 +6,7 @@ from Task import Task
 from Event import Event
 from Lesson import Lesson
 from Status import Status
+from datetime import date, timedelta
 
 path_file = "base_local.json"
 
@@ -27,9 +28,9 @@ class DataManager:
             with open(self.file_path, "r", encoding="utf-8") as f:
                 raw_data = json.load(f)
                 return {
-                    "tasks": [Task.from_dict(d) for d in raw_data.get('tasks', [])],
-                    "events": [Event.from_dict(d) for d in raw_data.get('events', [])],
-                    "lessons": [Lesson.from_dict(d) for d in raw_data.get('lessons', [])]
+                    "tasks": [Task.from_dict(task) for task in raw_data.get('tasks', [])],
+                    "events": [Event.from_dict(events) for events in raw_data.get('events', [])],
+                    "lessons": [Lesson.from_dict(lessons) for lessons in raw_data.get('lessons', [])]
                 }
         except (json.JSONDecodeError, IOError) as e:
             print(f"Error al cargar el archivo JSON: {e}. Se creará uno nuevo.")
@@ -44,7 +45,7 @@ class DataManager:
                     "events": [e.to_dict() for e in self.data["events"]],
                     "lessons": [l.to_dict() for l in self.data["lessons"]]
                 }
-                json.dump(serializable_data, f, indent=4, ensure_ascii=False)
+                json.dump(serializable_data, f, indent=4)
         except IOError as e:
             print(f"Error al guardar los datos: {e}")
 
@@ -75,7 +76,6 @@ class DataManager:
         self.saveData()
 
     def deleteEvent(self, index):
-        """Elimina un evento por su índice."""
         if 0 <= index < len(self.data['events']):
             del self.data['events'][index]
             self.saveData()
@@ -83,25 +83,31 @@ class DataManager:
         return False
 
     def get_all_events(self):
-        """Retorna la lista de todos los eventos."""
         return self.data['events']
 
     # --- Métodos para Lecciones ---
     def addLesson(self, title, notes, due_date, subject):
-        """Agrega una nueva lección a la lista."""
         new_lesson = Lesson(title, notes, due_date, subject)
         self.data['lessons'].append(new_lesson)
         self.saveData()
     
     def deleteLesson(self, index):
-        """Elimina una lección por su índice."""
         if 0 <= index < len(self.data['lessons']):
             del self.data['lessons'][index]
             self.saveData()
             return True
         return False
+    
+    def reviewLesson(self, score, index):
+        if 0 <= index < len(self.data['lessons']):
+            self.data['lessons'][index].review_lesson(score)
+            self.saveData()
+            return True
+        else:
+            print("Hubo un error, no se pudo actualizar.")
+
+
 
     def get_all_lessons(self):
-        """Retorna la lista de todas las lecciones."""
         return self.data['lessons']
 

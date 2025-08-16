@@ -1,5 +1,16 @@
 {
     "tasks": [],
     "events": [],
-    "lessons": []
+    "lessons": [
+        {
+            "title": "eou",
+            "notes": "oeu",
+            "due_date": "2025-08-15",
+            "subject": "aoue",
+            "efactor": 3.1000000000000005,
+            "repetitions": 8,
+            "next_review_date": "2025-08-15",
+            "interval": 0
+        }
+    ]
 }

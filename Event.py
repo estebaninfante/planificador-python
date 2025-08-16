@@ -10,7 +10,7 @@ class Event:
 
     def __str__(self):
         return f"Evento: {self.title} | Descripción: {self.description} | Fecha: {self.due_date} | Hora: {self.time}"
-
+    
     def to_dict(self):
         """Convierte el objeto Event a un diccionario para guardarlo."""
         return {

@@ -4,7 +4,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import customtkinter as ctk
 from DataManager import DataManager
-from dialogs import AddTaskDialog, AddEventDialog, AddLessonDialog
+# --- 1. IMPORTA EL DIÁLOGO DE CALIFICACIÓN ---
+from dialogs import AddTaskDialog, AddEventDialog, AddLessonDialog, ReviewScoreDialog
 
 class App(ctk.CTk):
     """
@@ -13,7 +14,7 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("Gestor de Tareas y Agenda")
-        self.geometry("900x600")
+        self.geometry("1100x700") # Aumentado para mejor visibilidad
 
         # Configurar tema de customtkinter
         ctk.set_appearance_mode("dark")  # Opciones: "dark", "light", "system"
@@ -25,7 +26,6 @@ class App(ctk.CTk):
         self.setup_ui()
 
 
-# gui.py -> (dentro de la clase App)
     def _setup_treeview_style(self):
         """Aplica un estilo al ttk.Treeview y DateEntry para que coincida con el tema."""
         # --- Obtener colores del tema actual de customtkinter ---
@@ -46,7 +46,7 @@ class App(ctk.CTk):
                         fieldbackground=bg_color,
                         borderwidth=0,
                         rowheight=35,  # Aumenta la altura para el nuevo tamaño de fuente
-                        font=("", 20)) # <-- LÍNEA MODIFICADA: Aumenta la fuente del contenido
+                        font=("", 14)) # Fuente del contenido
                         
         style.map('Treeview', background=[('selected', ctk.ThemeManager.theme["CTkButton"]["fg_color"])])
 
@@ -55,7 +55,7 @@ class App(ctk.CTk):
                         background=header_bg,
                         foreground=text_color,
                         relief="flat",
-                        font=("", 25, "bold")) # <-- LÍNEA MODIFICADA: Aumenta la fuente del encabezado
+                        font=("", 16, "bold")) # Fuente del encabezado
 
         style.map("Treeview.Heading", background=[('active', ctk.ThemeManager.theme["CTkButton"]["hover_color"])])
 
@@ -91,43 +91,35 @@ class App(ctk.CTk):
         self.create_lesson_tab(self.tab_view.tab("Lecciones"))
         
     def create_task_tab(self, tab):
-        """Crea y configura el Treeview y los botones para la pestaña de tareas."""
-        # Frame para el Treeview
+        # --- (Sin cambios en esta sección) ---
         tree_frame = ctk.CTkFrame(tab)
         tree_frame.pack(fill="both", expand=True, padx=5, pady=5)
-
         tree_columns = ("titulo", "estado", "fecha_limite")
         self.tasks_tree = ttk.Treeview(tree_frame, columns=tree_columns, show="headings")
         self.tasks_tree.heading("titulo", text="Título")
         self.tasks_tree.heading("estado", text="Estado")
         self.tasks_tree.heading("fecha_limite", text="Fecha Límite")
-        
         self.tasks_tree.column("titulo", width=300)
         self.tasks_tree.column("estado", anchor=tk.CENTER)
         self.tasks_tree.column("fecha_limite", anchor=tk.CENTER)
-        
         self.tasks_tree.pack(fill="both", expand=True)
-        
-        # Botones
         button_frame = ctk.CTkFrame(tab, fg_color="transparent")
         button_frame.pack(pady=10, fill="x")
-        
         add_button = ctk.CTkButton(button_frame, text="Agregar Tarea", command=self.add_task)
         add_button.pack(side="left", padx=10)
-        
         delete_button = ctk.CTkButton(button_frame, text="Eliminar Tarea", command=self.delete_task, fg_color="#D32F2F", hover_color="#B71C1C")
         delete_button.pack(side="left", padx=10)
-
         self.populate_tasks_tree()
 
     def populate_tasks_tree(self):
-        """Llena el Treeview de tareas."""
+        # --- (Sin cambios en esta sección) ---
         for item in self.tasks_tree.get_children():
             self.tasks_tree.delete(item)
         for task in self.dm.get_all_tasks():
             self.tasks_tree.insert("", "end", values=(task.title, task.status.value, task.due_date))
 
     def add_task(self):
+        # --- (Sin cambios en esta sección) ---
         dialog = AddTaskDialog(self)
         result = dialog.get_input()
         if result:
@@ -136,11 +128,11 @@ class App(ctk.CTk):
             self.populate_tasks_tree()
 
     def delete_task(self):
+        # --- (Sin cambios en esta sección) ---
         selected_item = self.tasks_tree.focus()
         if not selected_item:
             messagebox.showwarning("Selección inválida", "Por favor, seleccione una tarea para eliminar.")
             return
-
         if messagebox.askyesno("Confirmar", "¿Está seguro que desea eliminar la tarea seleccionada?"):
             item_index = self.tasks_tree.index(selected_item)
             if self.dm.deleteTask(item_index):
@@ -149,9 +141,9 @@ class App(ctk.CTk):
                 messagebox.showerror("Error", "No se pudo eliminar la tarea.")
 
     def create_event_tab(self, tab):
+        # --- (Sin cambios en esta sección) ---
         tree_frame = ctk.CTkFrame(tab)
         tree_frame.pack(fill="both", expand=True, padx=5, pady=5)
-
         tree_columns = ("titulo", "descripcion", "fecha", "hora")
         self.events_tree = ttk.Treeview(tree_frame, columns=tree_columns, show="headings")
         self.events_tree.heading("titulo", text="Título")
@@ -159,23 +151,23 @@ class App(ctk.CTk):
         self.events_tree.heading("fecha", text="Fecha")
         self.events_tree.heading("hora", text="Hora")
         self.events_tree.pack(fill="both", expand=True)
-
         button_frame = ctk.CTkFrame(tab, fg_color="transparent")
         button_frame.pack(pady=10, fill="x")
         add_button = ctk.CTkButton(button_frame, text="Agregar Evento", command=self.add_event)
         add_button.pack(side="left", padx=10)
         delete_button = ctk.CTkButton(button_frame, text="Eliminar Evento", command=self.delete_event, fg_color="#D32F2F", hover_color="#B71C1C")
         delete_button.pack(side="left", padx=10)
-        
         self.populate_events_tree()
 
     def populate_events_tree(self):
+        # --- (Sin cambios en esta sección) ---
         for item in self.events_tree.get_children():
             self.events_tree.delete(item)
         for event in self.dm.get_all_events():
             self.events_tree.insert("", "end", values=(event.title, event.description, event.due_date, event.time))
 
     def add_event(self):
+        # --- (Sin cambios en esta sección) ---
         dialog = AddEventDialog(self)
         result = dialog.get_input()
         if result:
@@ -183,6 +175,7 @@ class App(ctk.CTk):
             self.populate_events_tree()
 
     def delete_event(self):
+        # --- (Sin cambios en esta sección) ---
         selected_item = self.events_tree.focus()
         if not selected_item:
             messagebox.showwarning("Selección inválida", "Por favor, seleccione un evento para eliminar.")
@@ -196,18 +189,25 @@ class App(ctk.CTk):
         tree_frame = ctk.CTkFrame(tab)
         tree_frame.pack(fill="both", expand=True, padx=5, pady=5)
         
-        tree_columns = ("titulo", "asignatura", "fecha", "notas")
+        # --- 2. DEFINE LAS COLUMNAS, INCLUYENDO LA DE REPASO ---
+        tree_columns = ("titulo", "asignatura", "fecha", "proximo_repaso")
         self.lessons_tree = ttk.Treeview(tree_frame, columns=tree_columns, show="headings")
         self.lessons_tree.heading("titulo", text="Título")
         self.lessons_tree.heading("asignatura", text="Asignatura")
-        self.lessons_tree.heading("fecha", text="Fecha")
-        self.lessons_tree.heading("notas", text="Notas")
+        self.lessons_tree.heading("fecha", text="Fecha Creación")
+        self.lessons_tree.heading("proximo_repaso", text="Próximo Repaso")
         self.lessons_tree.pack(fill="both", expand=True)
 
         button_frame = ctk.CTkFrame(tab, fg_color="transparent")
         button_frame.pack(pady=10, fill="x")
+        
         add_button = ctk.CTkButton(button_frame, text="Agregar Lección", command=self.add_lesson)
         add_button.pack(side="left", padx=10)
+        
+        # --- 3. AÑADE EL BOTÓN PARA REPASAR ---
+        review_button = ctk.CTkButton(button_frame, text="Repasar Lección", command=self.review_lesson, fg_color="#00796B", hover_color="#004D40")
+        review_button.pack(side="left", padx=10)
+        
         delete_button = ctk.CTkButton(button_frame, text="Eliminar Lección", command=self.delete_lesson, fg_color="#D32F2F", hover_color="#B71C1C")
         delete_button.pack(side="left", padx=10)
         
@@ -216,8 +216,9 @@ class App(ctk.CTk):
     def populate_lessons_tree(self):
         for item in self.lessons_tree.get_children():
             self.lessons_tree.delete(item)
+        # --- 4. MUESTRA LA FECHA DEL PRÓXIMO REPASO ---
         for lesson in self.dm.get_all_lessons():
-            self.lessons_tree.insert("", "end", values=(lesson.title, lesson.subject, lesson.due_date, lesson.notes))
+            self.lessons_tree.insert("", "end", values=(lesson.title, lesson.subject, lesson.due_date, lesson.next_review_date))
 
     def add_lesson(self):
         dialog = AddLessonDialog(self)
@@ -235,3 +236,25 @@ class App(ctk.CTk):
             item_index = self.lessons_tree.index(selected_item)
             if self.dm.deleteLesson(item_index):
                 self.populate_lessons_tree()
+
+    # --- 5. IMPLEMENTA LA LÓGICA COMPLETA PARA REPASAR ---
+    def review_lesson(self):
+        """Abre un diálogo para calificar y luego actualiza la lección."""
+        selected_item = self.lessons_tree.focus()
+        if not selected_item:
+            messagebox.showwarning("Selección inválida", "Por favor, seleccione una lección para repasar.")
+            return
+
+        # Abre el diálogo para obtener la calificación
+        dialog = ReviewScoreDialog(self)
+        score = dialog.get_input()
+
+        # Si el usuario eligió una calificación (no cerró la ventana)
+        if score:
+            item_index = self.lessons_tree.index(selected_item)
+            # Pasa el índice y el score al DataManager
+            if self.dm.reviewLesson(score, item_index):
+                self.populate_lessons_tree() # Refresca la tabla
+                messagebox.showinfo("¡Éxito!", "Se ha programado el próximo repaso.")
+            else:
+                messagebox.showerror("Error", "No se pudo actualizar la lección.")

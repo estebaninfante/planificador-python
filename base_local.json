@@ -1,0 +1,26 @@
+{
+    "tasks": [],
+    "events": [],
+    "lessons": [
+        {
+            "title": "eou",
+            "notes": "oeu",
+            "due_date": "2025-08-15",
+            "subject": "aoue",
+            "efactor": 1.7000000000000004,
+            "repetitions": 1,
+            "next_review_date": "2025-08-17",
+            "interval": 1
+        },
+        {
+            "title": "Supuestos de la econom\u00eda",
+            "notes": "Monoticidad, combinicidad, etc.",
+            "due_date": "2025-08-16",
+            "subject": "Microeconom\u00eda",
+            "efactor": 3.1000000000000005,
+            "repetitions": 2,
+            "next_review_date": "2025-08-22",
+            "interval": 6
+        }
+    ]
+}

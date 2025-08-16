@@ -7,10 +7,20 @@
             "notes": "oeu",
             "due_date": "2025-08-15",
             "subject": "aoue",
-            "efactor": 3.1000000000000005,
-            "repetitions": 8,
-            "next_review_date": "2025-08-15",
+            "efactor": 1.6000000000000003,
+            "repetitions": 18,
+            "next_review_date": "2025-08-16",
             "interval": 0
+        },
+        {
+            "title": "Supuestos de la econom\u00eda",
+            "notes": "Monoticidad, combinicidad, etc.",
+            "due_date": "2025-08-16",
+            "subject": "Microeconom\u00eda",
+            "efactor": 3.1000000000000005,
+            "repetitions": 2,
+            "next_review_date": "2025-08-22",
+            "interval": 6
         }
     ]
 }

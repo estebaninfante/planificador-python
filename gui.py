@@ -186,25 +186,39 @@ class App(ctk.CTk):
                 self.populate_events_tree()
 
     def create_lesson_tab(self, tab):
+        """Crea y configura la pestaña de Lecciones."""
         tree_frame = ctk.CTkFrame(tab)
         tree_frame.pack(fill="both", expand=True, padx=5, pady=5)
         
-        # --- 2. DEFINE LAS COLUMNAS, INCLUYENDO LA DE REPASO ---
-        tree_columns = ("titulo", "asignatura", "fecha", "proximo_repaso")
+        # --- 1. DEFINE LAS COLUMNAS, INCLUYENDO REPETICIONES Y EFACTOR ---
+        tree_columns = ("titulo", "asignatura", "fecha", "proximo_repaso", "repeticiones", "efactor")
         self.lessons_tree = ttk.Treeview(tree_frame, columns=tree_columns, show="headings")
+        
+        # --- Configuración de Encabezados ---
         self.lessons_tree.heading("titulo", text="Título")
         self.lessons_tree.heading("asignatura", text="Asignatura")
         self.lessons_tree.heading("fecha", text="Fecha Creación")
         self.lessons_tree.heading("proximo_repaso", text="Próximo Repaso")
+        self.lessons_tree.heading("repeticiones", text="Repeticiones")
+        self.lessons_tree.heading("efactor", text="Factor Facilidad")
+        
+        # --- Configuración del ancho y alineación de las columnas ---
+        self.lessons_tree.column("titulo", width=250)
+        self.lessons_tree.column("asignatura", width=150)
+        self.lessons_tree.column("fecha", anchor=tk.CENTER, width=120)
+        self.lessons_tree.column("proximo_repaso", anchor=tk.CENTER, width=120)
+        self.lessons_tree.column("repeticiones", anchor=tk.CENTER, width=100)
+        self.lessons_tree.column("efactor", anchor=tk.CENTER, width=120)
+        
         self.lessons_tree.pack(fill="both", expand=True)
 
+        # --- Frame para los botones ---
         button_frame = ctk.CTkFrame(tab, fg_color="transparent")
         button_frame.pack(pady=10, fill="x")
         
         add_button = ctk.CTkButton(button_frame, text="Agregar Lección", command=self.add_lesson)
         add_button.pack(side="left", padx=10)
         
-        # --- 3. AÑADE EL BOTÓN PARA REPASAR ---
         review_button = ctk.CTkButton(button_frame, text="Repasar Lección", command=self.review_lesson, fg_color="#00796B", hover_color="#004D40")
         review_button.pack(side="left", padx=10)
         
@@ -214,13 +228,28 @@ class App(ctk.CTk):
         self.populate_lessons_tree()
 
     def populate_lessons_tree(self):
+        """Limpia y rellena la tabla de lecciones con datos actualizados."""
+        # Limpiar la tabla antes de rellenarla
         for item in self.lessons_tree.get_children():
             self.lessons_tree.delete(item)
-        # --- 4. MUESTRA LA FECHA DEL PRÓXIMO REPASO ---
+            
+        # --- 2. MUESTRA LOS NUEVOS DATOS: REPETICIONES Y EFACTOR ---
         for lesson in self.dm.get_all_lessons():
-            self.lessons_tree.insert("", "end", values=(lesson.title, lesson.subject, lesson.due_date, lesson.next_review_date))
+            # Formateamos el efactor para mostrar solo 2 decimales
+            formatted_efactor = f"{lesson.efactor:.2f}"
+            
+            # Insertamos la fila con todos los datos
+            self.lessons_tree.insert("", "end", values=(
+                lesson.title, 
+                lesson.subject, 
+                lesson.due_date, 
+                lesson.next_review_date,
+                lesson.repetitions,
+                formatted_efactor
+            ))
 
     def add_lesson(self):
+        """Abre un diálogo para agregar una nueva lección."""
         dialog = AddLessonDialog(self)
         result = dialog.get_input()
         if result:
@@ -228,16 +257,17 @@ class App(ctk.CTk):
             self.populate_lessons_tree()
 
     def delete_lesson(self):
+        """Elimina la lección seleccionada de la tabla."""
         selected_item = self.lessons_tree.focus()
         if not selected_item:
             messagebox.showwarning("Selección inválida", "Por favor, seleccione una lección para eliminar.")
             return
+            
         if messagebox.askyesno("Confirmar", "¿Está seguro que desea eliminar la lección seleccionada?"):
             item_index = self.lessons_tree.index(selected_item)
             if self.dm.deleteLesson(item_index):
                 self.populate_lessons_tree()
 
-    # --- 5. IMPLEMENTA LA LÓGICA COMPLETA PARA REPASAR ---
     def review_lesson(self):
         """Abre un diálogo para calificar y luego actualiza la lección."""
         selected_item = self.lessons_tree.focus()
@@ -245,16 +275,17 @@ class App(ctk.CTk):
             messagebox.showwarning("Selección inválida", "Por favor, seleccione una lección para repasar.")
             return
 
-        # Abre el diálogo para obtener la calificación
+        # Abre el diálogo para obtener la calificación del repaso
         dialog = ReviewScoreDialog(self)
         score = dialog.get_input()
 
-        # Si el usuario eligió una calificación (no cerró la ventana)
-        if score:
+        # Si el usuario proporcionó una calificación
+        if score is not None: # Se comprueba con 'is not None' por si el score fuera 0
             item_index = self.lessons_tree.index(selected_item)
-            # Pasa el índice y el score al DataManager
+            
+            # Llama al DataManager para que aplique el algoritmo SM-2
             if self.dm.reviewLesson(score, item_index):
-                self.populate_lessons_tree() # Refresca la tabla
+                self.populate_lessons_tree() # Refresca la tabla con los nuevos datos
                 messagebox.showinfo("¡Éxito!", "Se ha programado el próximo repaso.")
             else:
                 messagebox.showerror("Error", "No se pudo actualizar la lección.")

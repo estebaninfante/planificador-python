@@ -22,38 +22,36 @@ class Lesson:
             self.next_review_date = creation_date + timedelta(days=1)
 
         else:
-            # Carga la fecha desde el archivo JSON
             self.next_review_date = date.fromisoformat(next_review_date) if isinstance(next_review_date, str) else next_review_date
 
     def review_lesson(self, score):
-        if score <= 1.3:
-            self.efactor = 1.3
-        
-        elif score < 3:
+        if score < 3:
             self.repetitions = 0
             self.interval = 1
-        
-        elif score >= 3:    
+        else:
             if self.repetitions == 0:
                 self.interval = 1
             elif self.repetitions == 1:
                 self.interval = 6
             else:
-                self.interval = self.interval * self.efactor
+                self.interval = math.ceil(self.interval * self.efactor)
 
-        if self.repetitions >= 2:
-            self.efactor = self.newEaseFactor(score)
-        
-        self.repetitions += 1
+            self.repetitions += 1
+            
+            self.efactor += (0.1 - (5 - score) * (0.08 + (5 - score) * 0.02))
+            if self.efactor < 1.3:
+                self.efactor = 1.3
 
-        if self.repetitions >= 3:
-            self.interval = math.ceil(self.interval * self.efactor)
+        if score <= 1.3 and self.efactor < 1.3:
+            self.efactor = 1.3
 
         self.next_review_date = date.today() + timedelta(days=self.interval)
-
-    def newEaseFactor(self, score):
-        new_efactor = self.efactor + (0.1 - (5- score)*(0.08 + (5 - score) * 0.02))
-        return new_efactor
+        return {
+            "efactor": self.efactor,
+            "interval": self.interval,
+            "repetitions": self.repetitions,
+            "next_review_date": self.next_review_date
+        }
 
 
 

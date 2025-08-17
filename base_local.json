@@ -1,0 +1,22 @@
+{
+    "tasks": [
+        {
+            "title": "Estudiar",
+            "due_date": "2025-08-19",
+            "status": "Pendiente"
+        }
+    ],
+    "events": [],
+    "lessons": [
+        {
+            "title": "s",
+            "notes": "s",
+            "due_date": "2029-08-30",
+            "subject": "ss",
+            "efactor": 2.5,
+            "repetitions": 2,
+            "next_review_date": "2025-08-23",
+            "interval": 6
+        }
+    ]
+}

@@ -1,0 +1,25 @@
+Breve recordatorio del Proyecto 1
+
+En el primer proyecto desarrollamos un planificador de tareas académicas. El sistema permitía registrar actividades con sus respectivas fechas límite y, además, incluía un esquema de repaso para que el estudiante pudiera revisar cada tarea antes de entregarla.
+
+Cómo el Min-Heap soluciona parte del problema
+
+El Min-Heap permite organizar todas las tareas según su fecha límite, colocando siempre la más próxima en la parte superior.
+
+Esto resuelve dos problemas clave del planificador:
+
+1. Priorización automática: el estudiante no necesita revisar toda la lista de actividades para saber qué hacer primero, porque el Min-Heap ya mantiene el orden.
+
+2. Actualización dinámica: cada vez que se agrega una nueva tarea o se termina una existente, la estructura se reorganiza sola, garantizando que el planificador siempre muestre lo más urgente en tiempo real.
+
+3. Apoyo al repaso: como el sistema necesita recordar al estudiante qué tarea revisar, el Min-Heap asegura que las tareas próximas al vencimiento aparezcan primero, facilitando un ciclo de repaso más efectivo.
+
+Justificación de su elección
+
+El Min-Heap es ideal para este tipo de proyecto porque:
+
+• Optimiza el tiempo del usuario: el estudiante puede enfocarse directamente en la tarea más importante sin perder tiempo comparando todas.
+
+• Escala bien con muchas actividades: aunque el número de tareas crezca, el rendimiento sigue siendo eficiente gracias a su complejidad O(log n).
+
+• Se alinea con aplicaciones reales: este mismo método se usa en sistemas de planificación de procesos y en algoritmos de grafos, lo que valida su utilidad en contextos más amplios.

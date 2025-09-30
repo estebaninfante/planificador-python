@@ -10,8 +10,11 @@ from Lesson import Lesson
 from Status import Status
 from datetime import date, datetime, time, timedelta
 from PrioritizedItem import PrioritizedItem
+from UserPreferences import UserPreferences
+from Status import Status
 
 path_file = "base_local.json"
+preferences_file = "user_preferences.json"
 
 class DataManager:
     """
@@ -20,7 +23,9 @@ class DataManager:
     """
     def __init__(self, file_path=path_file):
         self.file_path = file_path
+        self.preferences_path = preferences_file
         self.data = self.loadData()
+        self.user_preferences = self.loadPreferences()
 
     def loadData(self):
         """Carga los datos del archivo JSON y los convierte en objetos."""
@@ -39,6 +44,27 @@ class DataManager:
             print(f"Error al cargar el archivo JSON: {e}. Se creará uno nuevo.")
             return {"tasks": [], "events": [], "lessons": []}
 
+    def loadPreferences(self):
+        """Carga las preferencias del usuario desde un archivo JSON."""
+        if not os.path.exists(self.preferences_path):
+            return UserPreferences()
+            
+        try:
+            with open(self.preferences_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return UserPreferences.from_dict(data)
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"Error al cargar preferencias: {e}. Se usarán las predeterminadas.")
+            return UserPreferences()
+
+    def savePreferences(self):
+        """Guarda las preferencias del usuario en un archivo JSON."""
+        try:
+            with open(self.preferences_path, "w", encoding="utf-8") as f:
+                json.dump(self.user_preferences.to_dict(), f, indent=4)
+        except IOError as e:
+            print(f"Error al guardar preferencias: {e}")
+
     def saveData(self):
         """Guarda los datos de los objetos en un archivo JSON."""
         try:
@@ -53,9 +79,24 @@ class DataManager:
             print(f"Error al guardar los datos: {e}")
 
     # --- Métodos para Tareas ---
-    def addTask(self, title, due_date):
+    def addTask(self, title, due_date, estimated_minutes: int | None = None):
         """Agrega una nueva tarea a la lista."""
-        new_task = Task(title, due_date)
+        # Acepta tanto date como str ISO (YYYY-MM-DD)
+        if isinstance(due_date, str):
+            try:
+                due_date = date.fromisoformat(due_date)
+            except ValueError:
+                # Si el formato no es ISO, intentar parseo laxo (dd/mm/yyyy)
+                try:
+                    parts = due_date.replace("/", "-").split("-")
+                    if len(parts[0]) == 2:  # dd-mm-YYYY
+                        d, m, y = map(int, parts)
+                        due_date = date(y, m, d)
+                    else:
+                        due_date = date.fromisoformat(due_date)
+                except Exception:
+                    due_date = date.today()
+        new_task = Task(title, due_date, estimated_minutes=estimated_minutes)
         self.data["tasks"].append(new_task)
         self.saveData()
 
@@ -77,8 +118,10 @@ class DataManager:
         min_heap = []
         today = date.today()
         
-        # Añadir todos los items al heap
+        # Añadir todos los items al heap, ignorando completados
         for item in self.data['tasks'] + self.data['events'] + self.data['lessons']:
+            if hasattr(item, 'status') and item.status == Status.COMPLETADO:
+                continue
             if days_range is not None:
                 days_until = (item.get_priority_date() - today).days
                 if days_until < 0 or days_until > days_range:
@@ -92,36 +135,97 @@ class DataManager:
         return prioritized_items
 
     def suggest_time_slots(self, items: List[PrioritizedItem]) -> None:
-        """Sugiere horarios para una lista de items basados en su prioridad."""
-        # Horario laboral típico
-        WORK_START = time(8, 0)  # 8:00 AM
-        WORK_END = time(22, 0)   # 10:00 PM
-        
-        current_time = datetime.now().time()
-        current_slot = current_time
-        
-        if current_time < WORK_START:
-            current_slot = WORK_START
-        elif current_time > WORK_END:
-            current_slot = WORK_START  # Comenzar mañana
-            
+        """Asigna horarios sin sobrescribir eventos fijos ni solapar con ellos.
+
+        - Los Eventos se consideran fijos y conservan su `time` (1h por defecto si no hay duración).
+        - Tareas y Lecciones se colocan en los huecos libres de la jornada (08:00–22:00),
+          empezando desde la hora actual.
+        - Si no hay espacio, continúa al día siguiente.
+        """
+        WORK_START = time(8, 0)
+        WORK_END = time(22, 0)
+
+        now = datetime.now()
+        today = now.date()
+
+        def parse_hhmm(value: str) -> time:
+            try:
+                h, m = map(int, value.split(":"))
+                return time(h, m)
+            except Exception:
+                return WORK_START
+
+        # 1) Preparar intervalos ocupados por día (eventos hoy) y acumulados de tareas
+        occupied_by_day: Dict[date, List[tuple[time, time]]] = {}
+        occupied_by_day[today] = []
         for item in items:
-            if not item.start_time:  # Solo si no tiene horario asignado
-                start_time = current_slot
-                
-                # Calcular hora de finalización basada en la duración
-                start_dt = datetime.combine(date.today(), start_time)
-                end_dt = start_dt + timedelta(minutes=item.duration)
-                
-                # Si el final excede el horario laboral, mover al siguiente día
-                if end_dt.time() > WORK_END:
-                    start_time = WORK_START
-                    end_dt = datetime.combine(date.today(), WORK_START) + timedelta(minutes=item.duration)
-                
-                item.set_time_range(start_time, end_dt.time())
-                
-                # Actualizar el siguiente slot disponible
-                current_slot = end_dt.time()
+            if getattr(item, 'get_type', lambda: '')() == 'Evento':
+                event_date = item.get_priority_date()
+                if event_date == today and hasattr(item, 'time') and item.time:
+                    start_t = parse_hhmm(item.time)
+                    start_dt = datetime.combine(today, start_t)
+                    end_dt = start_dt + timedelta(minutes=item.duration)
+                    # Establecer hora en el evento y agregar a bloque ocupado
+                    item.set_time_range(start_dt.time(), end_dt.time())
+                    item.planned_date = today
+                    occupied_by_day[today].append((start_dt.time(), end_dt.time()))
+
+        # Ordenar intervalos por inicio del día actual
+        occupied_by_day[today].sort(key=lambda x: x[0])
+
+        # 2) Construir bloques libres por día
+        def get_free_blocks_for_day(day: date) -> List[tuple[time, time]]:
+            # Obtener ocupados de ese día; si no hay, inicializar
+            if day not in occupied_by_day:
+                occupied_by_day[day] = []
+            day_occupied = sorted(occupied_by_day[day], key=lambda x: x[0])
+            # Si es hoy, no empezar antes de ahora
+            start_limit = max(now.time(), WORK_START) if day == today else WORK_START
+            blocks = []
+            cursor = start_limit
+            for s, e in day_occupied:
+                if e <= cursor:
+                    continue
+                if s > cursor:
+                    blocks.append((cursor, min(s, WORK_END)))
+                cursor = max(cursor, e)
+                if cursor >= WORK_END:
+                    break
+            if cursor < WORK_END:
+                blocks.append((cursor, WORK_END))
+            return [(s, e) for s, e in blocks if s < e]
+
+        # 3) Asignar Tareas/Lecciones en huecos libres
+        schedulables = [it for it in items if getattr(it, 'get_type', lambda: '')() != 'Evento']
+        current_day = today
+        i = 0
+        while i < len(schedulables):
+            free_blocks = get_free_blocks_for_day(current_day)
+            if not free_blocks:
+                current_day = current_day + timedelta(days=1)
+                continue
+            placed_any = False
+            for block_start, block_end in free_blocks:
+                # Mientras quede espacio en este bloque, colocar items
+                cursor_dt = datetime.combine(current_day, block_start)
+                end_block_dt = datetime.combine(current_day, block_end)
+                while i < len(schedulables) and cursor_dt + timedelta(minutes=schedulables[i].duration) <= end_block_dt:
+                    it = schedulables[i]
+                    it.set_time_range(cursor_dt.time(), (cursor_dt + timedelta(minutes=it.duration)).time())
+                    it.planned_date = current_day
+                    # Marcar el intervalo como ocupado para este día
+                    if current_day not in occupied_by_day:
+                        occupied_by_day[current_day] = []
+                    occupied_by_day[current_day].append((it.start_time, it.end_time))
+                    occupied_by_day[current_day].sort(key=lambda x: x[0])
+                    cursor_dt += timedelta(minutes=it.duration)
+                    i += 1
+                    placed_any = True
+                if i >= len(schedulables):
+                    break
+            if not placed_any:
+                # No hubo espacio hoy; pasar al siguiente día completo
+                current_day = current_day + timedelta(days=1)
 
     def get_items_by_day(self) -> Dict[str, List[PrioritizedItem]]:
         """
@@ -138,15 +242,15 @@ class DataManager:
         tomorrow = today + timedelta(days=1)
         week_later = today + timedelta(days=7)
         
-        # Obtener todos los items
+        # Obtener todos los items, asignar horarios respetando eventos fijos
         all_items = self.get_all_prioritized_items()
-        urgent_items = []
-        
+        self.suggest_time_slots(all_items)
+
         for item in all_items:
             priority_date = item.get_priority_date()
             
             if priority_date < today or priority_date == today:
-                urgent_items.append(item)
+                items_by_day["Para Hoy (Urgente)"].append(item)
             elif priority_date == tomorrow:
                 items_by_day["Mañana"].append(item)
             elif priority_date <= week_later:
@@ -154,14 +258,37 @@ class DataManager:
             else:
                 items_by_day["Más adelante"].append(item)
         
-        # Sugerir horarios para items urgentes
-        self.suggest_time_slots(urgent_items)
-        items_by_day["Para Hoy (Urgente)"] = sorted(
-            urgent_items,
-            key=lambda x: (x.start_time if x.start_time else time(23, 59))
-        )
+        # Ordenar cada grupo por hora sugerida si existe
+        for key in items_by_day:
+            items_by_day[key] = sorted(
+                items_by_day[key],
+                key=lambda x: (x.start_time if x.start_time else time(23, 59))
+            )
                 
         return items_by_day
+
+    def get_today_plan(self) -> List[PrioritizedItem]:
+        """Devuelve solo los elementos planificados explícitamente para HOY.
+
+        - Incluye eventos cuyo `get_priority_date()` sea hoy.
+        - Incluye tareas y lecciones con `planned_date == hoy`.
+        - Ordenado por `start_time` si existe.
+        """
+        today = date.today()
+        all_items = self.get_all_prioritized_items()
+        self.suggest_time_slots(all_items)
+
+        today_items: List[PrioritizedItem] = []
+        for item in all_items:
+            if getattr(item, 'get_type', lambda: '')() == 'Evento':
+                if item.get_priority_date() == today:
+                    today_items.append(item)
+            else:
+                if getattr(item, 'planned_date', None) == today:
+                    today_items.append(item)
+
+        today_items.sort(key=lambda x: (x.start_time if x.start_time else time(23, 59)))
+        return today_items
 
     def get_prioritized_tasks(self):
         """Retorna una lista de tareas ordenadas por prioridad usando Min-Heap."""
@@ -187,6 +314,21 @@ class DataManager:
     def get_all_tasks(self):
         """Retorna la lista de todas las tareas ordenadas por prioridad."""
         return self.get_prioritized_tasks()
+
+    # --- Estados ---
+    def mark_task_completed(self, index: int) -> bool:
+        if 0 <= index < len(self.data['tasks']):
+            self.data['tasks'][index].status = Status.COMPLETADO
+            self.saveData()
+            return True
+        return False
+
+    def mark_lesson_completed(self, index: int) -> bool:
+        if 0 <= index < len(self.data['lessons']):
+            self.data['lessons'][index].status = Status.COMPLETADO
+            self.saveData()
+            return True
+        return False
 
     def get_all_events(self):
         """Retorna la lista de todos los eventos ordenados por prioridad."""
@@ -254,6 +396,19 @@ class DataManager:
                 for lesson_data in json_data['lessons']:
                     try:
                         lesson = Lesson.from_dict(lesson_data)
+                        # Si viene notes_file y existe en el sistema, copiar a lesson_notes
+                        nf = lesson_data.get('notes_file')
+                        if nf:
+                            try:
+                                import os, shutil
+                                os.makedirs('lesson_notes', exist_ok=True)
+                                base_name = os.path.basename(nf)
+                                target_path = os.path.join('lesson_notes', base_name)
+                                if os.path.abspath(nf) != os.path.abspath(target_path):
+                                    shutil.copyfile(nf, target_path)
+                                lesson.notes_file = target_path
+                            except Exception as e:
+                                print(f"No se pudo copiar el archivo de notas: {e}")
                         self.data['lessons'].append(lesson)
                     except ValueError as e:
                         print(f"Error importando lección: {e}")
@@ -296,8 +451,21 @@ class DataManager:
         return self.data['events']
 
     # --- Métodos para Lecciones ---
-    def addLesson(self, title, notes, due_date, subject):
-        new_lesson = Lesson(title, notes, due_date, subject)
+    def addLesson(self, title, notes, due_date, subject, estimated_minutes: int | None = None, notes_file: str | None = None):
+        # Si se proporcionó un archivo markdown, copiarlo a lesson_notes/
+        saved_notes_file = None
+        if notes_file:
+            try:
+                import os, shutil
+                os.makedirs('lesson_notes', exist_ok=True)
+                base_name = os.path.basename(notes_file)
+                target_path = os.path.join('lesson_notes', base_name)
+                if os.path.abspath(notes_file) != os.path.abspath(target_path):
+                    shutil.copyfile(notes_file, target_path)
+                saved_notes_file = target_path
+            except Exception as e:
+                print(f"No se pudo copiar el archivo de notas: {e}")
+        new_lesson = Lesson(title, notes, due_date, subject, estimated_minutes=estimated_minutes, notes_file=saved_notes_file)
         self.data['lessons'].append(new_lesson)
         self.saveData()
     

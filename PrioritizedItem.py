@@ -8,6 +8,7 @@ class PrioritizedItem(ABC):
         self.start_time = None  # Hora de inicio sugerida
         self.end_time = None    # Hora de finalización sugerida
         self.duration = 60      # Duración predeterminada en minutos
+        self.planned_date = None  # Fecha planificada (no persistente)
     
     @abstractmethod
     def get_priority_date(self) -> date:
@@ -69,6 +70,12 @@ class PrioritizedItem(ABC):
     def get_days_remaining(self) -> int:
         """Calcula los días restantes hasta la fecha de prioridad."""
         priority_date = self.get_priority_date()
+        # Normalizar a date si viene como string
+        if isinstance(priority_date, str):
+            try:
+                priority_date = date.fromisoformat(priority_date)
+            except Exception:
+                return 0
         return (priority_date - date.today()).days if priority_date else 0
 
     def get_priority_text(self) -> str:

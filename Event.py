@@ -11,6 +11,7 @@ class Event(PrioritizedItem):
         self.description = description
         self.due_date = due_date
         self.time = time
+        self.is_fixed = True  # Los eventos son fijos por defecto
 
     def __str__(self):
         return f"Evento: {self.title} | Descripción: {self.description} | Fecha: {self.due_date} | Hora: {self.time}"
@@ -36,7 +37,8 @@ class Event(PrioritizedItem):
             'time': self.time,
             'start_time': self.start_time.strftime('%H:%M') if self.start_time else None,
             'end_time': self.end_time.strftime('%H:%M') if self.end_time else None,
-            'duration': self.duration
+            'duration': self.duration,
+            'is_fixed': self.is_fixed
         }
 
     @staticmethod

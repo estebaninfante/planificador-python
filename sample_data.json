@@ -1,0 +1,76 @@
+{
+    "tasks": [
+        {
+            "title": "Entrega de Avance del Proyecto Final",
+            "due_date": "2025-10-04",
+            "status": "Pendiente"
+        },
+        {
+            "title": "Taller de Física",
+            "due_date": "2025-10-06",
+            "status": "Pendiente"
+        },
+        {
+            "title": "Ensayo de Humanidades",
+            "due_date": "2025-10-03",
+            "status": "Pendiente"
+        },
+        {
+            "title": "Investigación para proyecto de A&D",
+            "due_date": "2025-10-08",
+            "status": "Pendiente"
+        },
+        {
+            "title": "Estudiar quiz de inglés",
+            "due_date": "2025-10-02",
+            "status": "Pendiente"
+        },
+        {
+            "title": "Revisar capítulo 3 del libro de texto",
+            "due_date": "2025-10-07",
+            "status": "Pendiente"
+        }
+    ],
+    "events": [
+        {
+            "title": "Reunión de equipo para proyecto",
+            "description": "Definir roles y próximos pasos",
+            "due_date": "2025-10-01",
+            "time": "14:00"
+        },
+        {
+            "title": "Presentación Parcial A&D",
+            "description": "Exposición de avances del algoritmo",
+            "due_date": "2025-10-10",
+            "time": "09:00"
+        },
+        {
+            "title": "Cita con Asesor de Tesis",
+            "description": "Revisar capítulo 1 de la monografía",
+            "due_date": "2025-10-01",
+            "time": "11:00"
+        }
+    ],
+    "lessons": [
+        {
+            "title": "Repasar apuntes de Cálculo",
+            "notes": "Revisar derivadas e integrales para el parcial.",
+            "due_date": "2025-09-28",
+            "subject": "Cálculo Diferencial",
+            "efactor": 2.5,
+            "repetitions": 0,
+            "next_review_date": "2025-10-05",
+            "interval": 0
+        },
+        {
+            "title": "Fórmulas de Química Orgánica",
+            "notes": "Memorizar alcanos, alquenos y alquinos.",
+            "due_date": "2025-09-30",
+            "subject": "Química",
+            "efactor": 2.5,
+            "repetitions": 0,
+            "next_review_date": "2025-10-01",
+            "interval": 0
+        }
+    ]
+}

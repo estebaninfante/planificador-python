@@ -85,6 +85,10 @@ class AddTaskDialog(BaseDialog):
                                         borderwidth=0,
                                         font=("", 12))
         self.due_date_entry.grid(row=1, column=1, sticky="w", padx=5, pady=5)
+
+        ctk.CTkLabel(self.body_frame, text="Tiempo estimado (min):").grid(row=2, column=0, sticky="w", padx=5, pady=5)
+        self.estimated_entry = ctk.CTkEntry(self.body_frame, width=120)
+        self.estimated_entry.grid(row=2, column=1, sticky="w", padx=5, pady=5)
     
     def validate(self):
         if not self.title_entry.get():
@@ -93,7 +97,9 @@ class AddTaskDialog(BaseDialog):
         return True
 
     def apply(self):
-        self.result = (self.title_entry.get(), self.due_date_entry.get())
+        est = self.estimated_entry.get().strip()
+        est_val = int(est) if est.isdigit() else None
+        self.result = (self.title_entry.get(), self.due_date_entry.get(), est_val)
 
 class AddEventDialog(BaseDialog):
     def __init__(self, parent):
@@ -144,7 +150,7 @@ class AddLessonDialog(BaseDialog):
     
     def create_body(self):
         self.entries = {}
-        labels = ["Título:", "Notas:", "Asignatura:"]
+        labels = ["Título:", "Notas (texto opcional):", "Asignatura:"]
         for i, text in enumerate(labels):
             ctk.CTkLabel(self.body_frame, text=text).grid(row=i, column=0, sticky="w", padx=5, pady=5)
             entry = ctk.CTkEntry(self.body_frame, width=250)
@@ -161,15 +167,35 @@ class AddLessonDialog(BaseDialog):
                                         font=("", 12))
         self.due_date_entry.grid(row=len(labels), column=1, sticky="w", padx=5, pady=5)
 
+        ctk.CTkLabel(self.body_frame, text="Tiempo estimado (min, opcional):").grid(row=len(labels)+1, column=0, sticky="w", padx=5, pady=5)
+        self.estimated_entry = ctk.CTkEntry(self.body_frame, width=120)
+        self.estimated_entry.grid(row=len(labels)+1, column=1, sticky="w", padx=5, pady=5)
+
+        ctk.CTkLabel(self.body_frame, text="Archivo Markdown (opcional .md):").grid(row=len(labels)+2, column=0, sticky="w", padx=5, pady=5)
+        self.notes_file_entry = ctk.CTkEntry(self.body_frame, width=250)
+        self.notes_file_entry.grid(row=len(labels)+2, column=1, sticky="w", padx=5, pady=5)
+
     def validate(self):
-        for name, entry in self.entries.items():
-            if not entry.get():
-                messagebox.showwarning("Campo Vacío", f"El campo '{name}' es obligatorio.", parent=self)
-                return False
+        if not self.entries["Título"].get():
+            messagebox.showwarning("Campo Vacío", "El campo 'Título' es obligatorio.", parent=self)
+            return False
+        if not self.entries["Asignatura"].get():
+            messagebox.showwarning("Campo Vacío", "El campo 'Asignatura' es obligatorio.", parent=self)
+            return False
         return True
 
     def apply(self):
-        self.result = (self.entries["Título"].get(), self.entries["Notas"].get(), self.due_date_entry.get(), self.entries["Asignatura"].get())
+        est = self.estimated_entry.get().strip()
+        est_val = int(est) if est.isdigit() else None
+        notes_file = self.notes_file_entry.get().strip() or None
+        self.result = (
+            self.entries["Título"].get(),
+            self.entries["Notas (texto opcional)"].get(),
+            self.due_date_entry.get(),
+            self.entries["Asignatura"].get(),
+            est_val,
+            notes_file
+        )
 
 # --- Esta es la clase que necesitas implementar ---
 class ReviewScoreDialog(BaseDialog):

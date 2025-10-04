@@ -3,19 +3,25 @@
 from datetime import timedelta, date, time
 import math
 from PrioritizedItem import PrioritizedItem
+from Status import Status
 
 class Lesson(PrioritizedItem):
     """Clase para representar una lección o clase."""
-    def __init__(self, title, notes, due_date, subject, interval=0, repetitions=0, efactor=2.5, next_review_date=None):
+    def __init__(self, title, notes, due_date, subject, interval=0, repetitions=0, efactor=2.5, next_review_date=None, status: Status = Status.PENDIENTE, estimated_minutes: int | None = None, notes_file: str | None = None):
         super().__init__()  # Llamar al constructor de PrioritizedItem
         self.title = title
-        self.notes = notes
+        self.notes = notes  # puede ser texto breve
         self.due_date = due_date  # Fecha de creación
         self.subject = subject
+        self.status = status
         self.repetitions = int(repetitions) 
         self.efactor = float(efactor)
         self.interval = int(interval)
         self.next_review_date = next_review_date       
+        self.notes_file = notes_file  # ruta al markdown si se proporcionó
+        if estimated_minutes:
+            self.duration = int(estimated_minutes)
+        self.estimated_minutes = int(estimated_minutes) if estimated_minutes else None
 
         # Si es una lección nueva, calcula la primera fecha de repaso
         if next_review_date is None:
@@ -77,18 +83,22 @@ class Lesson(PrioritizedItem):
             'notes': self.notes,
             'due_date': str(self.due_date),
             'subject': self.subject,
+            'status': self.status.value,
             'efactor': self.efactor,        
             'repetitions': self.repetitions,
             'next_review_date': str(self.next_review_date),
             'interval': self.interval,
             'start_time': self.start_time.strftime('%H:%M') if self.start_time else None,
             'end_time': self.end_time.strftime('%H:%M') if self.end_time else None,
-            'duration': self.duration
+            'duration': self.duration,
+            'estimated_minutes': self.estimated_minutes,
+            'notes_file': self.notes_file
         }
     
     @staticmethod
     def from_dict(data):
         """Crea un objeto Lesson a partir de un diccionario."""
+        status_value = data.get('status', 'Pendiente')
         lesson = Lesson(
             data['title'], 
             data['notes'], 
@@ -97,7 +107,10 @@ class Lesson(PrioritizedItem):
             interval=data.get('interval', 0),
             repetitions=data.get('repetitions', 0),
             efactor=data.get('efactor', 2.5),
-            next_review_date=data.get('next_review_date')
+            next_review_date=data.get('next_review_date'),
+            status=Status(status_value),
+            estimated_minutes=data.get('estimated_minutes'),
+            notes_file=data.get('notes_file')
         )
         
         # Recuperar información de tiempo si existe

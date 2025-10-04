@@ -1,0 +1,47 @@
+{
+    "font_size": 20,
+    "work_hours": {
+        "start": "08:00",
+        "end": "18:00"
+    },
+    "time_blocks": {
+        "morning": {
+            "start": "08:00",
+            "end": "12:00"
+        },
+        "afternoon": {
+            "start": "14:00",
+            "end": "18:00"
+        },
+        "evening": {
+            "start": "18:00",
+            "end": "22:00"
+        }
+    },
+    "breaks": {
+        "duration": 15,
+        "frequency": 120
+    },
+    "meal_times": {
+        "lunch": {
+            "time": "12:00",
+            "duration": 60
+        },
+        "dinner": {
+            "time": "19:00",
+            "duration": 60
+        }
+    },
+    "productivity_preferences": {
+        "high_focus_times": [],
+        "preferred_task_times": {
+            "high_priority": "morning",
+            "medium_priority": "afternoon",
+            "low_priority": "evening"
+        }
+    },
+    "non_working_days": [
+        5,
+        6
+    ]
+}

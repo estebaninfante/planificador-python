@@ -31,31 +31,34 @@ class ImportDialog(ctk.CTkToplevel):
         info_text = """
         Seleccione un archivo JSON para importar elementos.
         
-        Formato esperado:
+        Formato esperado (campos opcionales marcados):
         {
-            "tasks": [
-                {
-                    "title": "Tarea 1",
-                    "due_date": "2025-10-01",
-                    "status": "Pendiente"
-                }
-            ],
-            "events": [
-                {
-                    "title": "Evento 1",
-                    "description": "Descripción",
-                    "due_date": "2025-10-01",
-                    "time": "10:00"
-                }
-            ],
-            "lessons": [
-                {
-                    "title": "Lección 1",
-                    "notes": "Notas",
-                    "due_date": "2025-10-01",
-                    "subject": "Matemáticas"
-                }
-            ]
+          "tasks": [
+            {
+              "title": "Tarea 1",
+              "due_date": "2025-10-01",          // ISO (YYYY-MM-DD)
+              "status": "Pendiente",             // opcional
+              "estimated_minutes": 50             // opcional, define duración del bloque
+            }
+          ],
+          "events": [
+            {
+              "title": "Evento 1",
+              "description": "Descripción",
+              "due_date": "2025-10-01",          // día del evento
+              "time": "10:00"                     // HH:MM, evento fijo
+            }
+          ],
+          "lessons": [
+            {
+              "title": "Lección 1",
+              "notes": "Notas breves",           // opcional
+              "due_date": "2025-10-01",
+              "subject": "Matemáticas",
+              "estimated_minutes": 25,            // opcional
+              "notes_file": "ruta/al/archivo.md" // opcional, se copiará a lesson_notes/
+            }
+          ]
         }
         """
         info_label = ctk.CTkTextbox(main_frame, height=200)

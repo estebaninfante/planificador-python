@@ -1,0 +1,17 @@
+Clasificación:
+    El Min-Heap se clasifica como una estructura de datos que suele usarse en algoritmos voraces (greedy).
+    Esto porque siempre elige de forma inmediata el elemento más pequeño, sin tener que revisar toda la lista.
+
+Uso en general:
+    El Min-Heap sirve para organizar datos y poder acceder rápido al valor más pequeño o más urgente.
+    Se usa cuando importa mucho el orden de prioridad y se necesita decidir rápido qué elemento atender primero.
+
+Ejemplos:
+
+    Planificación de tareas: hacer primero la tarea con la fecha más cercana.
+
+    Procesos en un computador: decidir qué proceso se ejecuta primero.
+
+    Colas de impresión: imprimir antes el documento más urgente.
+
+    Rutas en grafos (como Dijkstra): encontrar siempre el camino más corto eligiendo el nodo con menor distancia.

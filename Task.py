@@ -6,18 +6,22 @@ from PrioritizedItem import PrioritizedItem
 
 class Task(PrioritizedItem):
     """Clase para representar una tarea."""
-    def __init__(self, title, due_date: date, status: Status = Status.PENDIENTE):
+    def __init__(self, title, due_date: date, status: Status = Status.PENDIENTE, estimated_minutes: int | None = None):
         super().__init__()  # Llamar al constructor de PrioritizedItem
         self.title = title
         self.due_date = due_date
         self.status = status
+        if estimated_minutes:
+            self.duration = int(estimated_minutes)
+        self.estimated_minutes = int(estimated_minutes) if estimated_minutes else None
 
     def __str__(self):
         return f"Tarea: {self.title} | Estado: {self.status.value} | Fecha Límite: {self.due_date}"
 
     def get_priority_date(self) -> date:
         """Implementa el método abstracto de PrioritizedItem."""
-        return self.due_date
+        # Normalizar a date si vino como string
+        return date.fromisoformat(self.due_date) if isinstance(self.due_date, str) else self.due_date
 
     def get_priority_time(self) -> str:
         """Implementa el método abstracto de PrioritizedItem."""
@@ -35,7 +39,8 @@ class Task(PrioritizedItem):
             'status': self.status.value,
             'start_time': self.start_time.strftime('%H:%M') if self.start_time else None,
             'end_time': self.end_time.strftime('%H:%M') if self.end_time else None,
-            'duration': self.duration
+            'duration': self.duration,
+            'estimated_minutes': self.estimated_minutes
         }
 
     @staticmethod
@@ -43,8 +48,11 @@ class Task(PrioritizedItem):
         """Crea un objeto Task a partir de un diccionario."""
         try:
             status = Status(data.get('status', 'Pendiente'))
-            due_date = date.fromisoformat(data['due_date'])
-            task = Task(data['title'], due_date, status)
+            # due_date puede llegar como str o date
+            raw_due = data['due_date']
+            due_date = date.fromisoformat(raw_due) if isinstance(raw_due, str) else raw_due
+            estimated = data.get('estimated_minutes')
+            task = Task(data['title'], due_date, status, estimated_minutes=estimated)
             
             # Recuperar información de tiempo si existe
             if data.get('start_time'):

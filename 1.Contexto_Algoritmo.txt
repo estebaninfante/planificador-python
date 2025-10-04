@@ -1,0 +1,30 @@
+Nombre del algoritmo :  
+    Min-Heap  (Planificación de tareas)
+
+Explicacion teorica : 
+    El Min-Heap es una forma de organizar datos donde el número más pequeño siempre queda arriba (primordial).
+    Así, cuando se necesita el valor menor, se puede tomar de inmediato sin revisar todos los elementos.
+    Si se agrega o elimina algo, la estructura se acomoda sola para mantener el orden. 
+
+    Dentro de nuestr programa este algoritmo sirve para organizar tareas según su prioridad o fecha límite.
+    La idea es que la tarea más urgente siempre quede arriba en la estructura, lista para ser atendida primero.
+    Cuando se agrega o quita una tarea, el sistema se acomoda solo para mantener ese orden. 
+
+Complejidad temporal : 
+    Agregar un elemento ( O(log n) )
+    Cuando metes una nueva tarea o número, este debe encontrar su lugar en el montículo.
+    El algoritmo sube o baja ese dato hasta que quede bien acomodado.
+
+    Quitar el menor ( O(log n) )
+    Al sacar el elemento más pequeño (que siempre está arriba), el montículo debe reacomodarse para que el siguiente menor suba a la raíz.
+    Ese reacomodo toma un tiempo similar al de agregar.
+
+    Consultar el menor ( O(1) )
+    Si solo quieres ver cuál es el número más pequeño, es inmediato, porque siempre está en la  (arriba).
+    No necesitas recorrer toda la estructura.
+
+Complejidad espacial : 
+    Espacio usado ( O(n) ):
+    El Min-Heap  necesita guardar todos los elementos en memoria.
+    Eso quiere decir que, si tienes 10 datos, usará espacio para 10; si tienes 100, usará espacio para 100.
+    El espacio crece al mismo ritmo que la cantidad de datos.

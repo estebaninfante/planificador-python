@@ -1,0 +1,117 @@
+{
+    "tasks": [],
+    "events": [
+        {
+            "title": "MICROECONOMIA I",
+            "description": "Clase semanal",
+            "due_date": "2025-09-30",
+            "time": "07:00",
+            "start_time": "07:00",
+            "end_time": "09:00",
+            "duration": 120,
+            "is_fixed": true
+        },
+        {
+            "title": "CÁLCULO INTEGRAL",
+            "description": "Clase semanal",
+            "due_date": "2025-09-30",
+            "time": "09:00",
+            "start_time": "09:00",
+            "end_time": "11:00",
+            "duration": 120,
+            "is_fixed": true
+        },
+        {
+            "title": "TEORIA SERVICIO LA CALIDAD",
+            "description": "Clase semanal",
+            "due_date": "2025-09-30",
+            "time": "11:00",
+            "start_time": "11:00",
+            "end_time": "13:00",
+            "duration": 120,
+            "is_fixed": true
+        },
+        {
+            "title": "ESTRUC. DATOS Y ALGORITMOS",
+            "description": "Clase semanal",
+            "due_date": "2025-09-30",
+            "time": "15:00",
+            "start_time": "15:00",
+            "end_time": "18:00",
+            "duration": 180,
+            "is_fixed": true
+        },
+        {
+            "title": "P&CI PERSONA Y AFECTIVIDAD",
+            "description": "Clase semanal",
+            "due_date": "2025-10-01",
+            "time": "07:00",
+            "start_time": "07:00",
+            "end_time": "09:00",
+            "duration": 120,
+            "is_fixed": true
+        },
+        {
+            "title": "PROGRAMACION ORIENTADA OBJ.",
+            "description": "Clase semanal",
+            "due_date": "2025-10-01",
+            "time": "09:00",
+            "start_time": "09:00",
+            "end_time": "12:00",
+            "duration": 180,
+            "is_fixed": true
+        },
+        {
+            "title": "TEORIA ORGANIZACIONAL",
+            "description": "Clase semanal",
+            "due_date": "2025-10-01",
+            "time": "13:00",
+            "start_time": "13:00",
+            "end_time": "15:00",
+            "duration": 120,
+            "is_fixed": true
+        },
+        {
+            "title": "MICROECONOMIA I",
+            "description": "Clase semanal",
+            "due_date": "2025-10-02",
+            "time": "07:00",
+            "start_time": "07:00",
+            "end_time": "09:00",
+            "duration": 120,
+            "is_fixed": true
+        },
+        {
+            "title": "Examen - CÁLCULO INTEGRAL",
+            "description": "Evaluación parcial",
+            "due_date": "2025-10-02",
+            "time": "09:00",
+            "start_time": "09:00",
+            "end_time": "11:00",
+            "duration": 120,
+            "is_fixed": true
+        },
+        {
+            "title": "TEORIA SERVICIO LA CALIDAD",
+            "description": "Clase semanal",
+            "due_date": "2025-10-02",
+            "time": "12:00",
+            "start_time": "12:00",
+            "end_time": "14:00",
+            "duration": 120,
+            "is_fixed": true
+        },
+        {
+            "title": "TEORIA ORGANIZACIONAL",
+            "description": "Clase semanal",
+            "due_date": "2025-10-03",
+            "time": "12:00",
+            "start_time": "12:00",
+            "end_time": "13:00",
+            "duration": 60,
+            "is_fixed": true
+        }
+    ],
+    "lessons": []
+}
+

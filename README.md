@@ -1,4 +1,4 @@
-# Planificador Académico con Min-Heap
+# Planificador Académico 
 
 Este proyecto es un planificador de tareas académicas que utiliza la estructura de datos Min-Heap para organizar y priorizar actividades según su fecha límite.
 
@@ -9,7 +9,6 @@ Este proyecto es un planificador de tareas académicas que utiliza la estructura
 ├── data/          # Archivos de datos (.json)
 ├── docs/          # Documentación, análisis y ejemplos (.md, .txt, .py)
 ├── README.md      # Descripción del proyecto
-├── .gitignore     # Archivos y carpetas ignorados por git
 └── __pycache__/   # Archivos temporales de Python
 ```
 

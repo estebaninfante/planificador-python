@@ -39,4 +39,4 @@ python src/main.py
 Este proyecto es de uso académico y libre para modificar.
 
 ## Autor
-Esteban Infante y colaboradores
+Esteban Infante y Yeison Niño
